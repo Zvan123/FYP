@@ -21,15 +21,6 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/appointments"
-                    className={({ isActive }) =>
-                        `${linkClass} ${isActive ? activeClass : "text-gray-700"}`
-                    }
-                >
-                    Appointments
-                </NavLink>
-
-                <NavLink
                     to="/patients"
                     className={({ isActive }) =>
                         `${linkClass} ${isActive ? activeClass : "text-gray-700"}`
@@ -39,12 +30,21 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/add-patient"
+                    to="/staff"
                     className={({ isActive }) =>
                         `${linkClass} ${isActive ? activeClass : "text-gray-700"}`
                     }
                 >
-                    Add Patient
+                    Staff
+                </NavLink>
+
+                <NavLink
+                    to="/add-staff"
+                    className={({ isActive }) =>
+                        `${linkClass} ${isActive ? activeClass : "text-gray-700"}`
+                    }
+                >
+                    Add Staff
                 </NavLink>
 
                 <NavLink
@@ -57,21 +57,22 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/wards"
+                    to="/add-appointment"
                     className={({ isActive }) =>
                         `${linkClass} ${isActive ? activeClass : "text-gray-700"}`
                     }
                 >
-                    Wards
+                    Add Appointment
                 </NavLink>
 
+
                 <NavLink
-                    to="/staff"
+                    to="/appointments"
                     className={({ isActive }) =>
                         `${linkClass} ${isActive ? activeClass : "text-gray-700"}`
                     }
                 >
-                    Staff
+                    Appointments
                 </NavLink>
             </nav>
         </aside>
