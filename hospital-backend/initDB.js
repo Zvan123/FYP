@@ -50,16 +50,16 @@ async function initDB() {
 `);
 
     await pool.query(`
-      CREATE TABLE appointment (
-        appointment_id SERIAL PRIMARY KEY,
-        patient_id INTEGER REFERENCES patient(patient_id),
-        staff_id VARCHAR(10) REFERENCES staff(staff_id),
-        appointment_date DATE,
-        appointment_time TIME,
-        status VARCHAR(20),
-        notes TEXT
-      );
-    `);
+  CREATE TABLE appointment (
+    appointment_id SERIAL PRIMARY KEY,
+    patient_id INTEGER REFERENCES patient(patient_id) ON DELETE CASCADE,
+    staff_id VARCHAR(10) REFERENCES staff(staff_id) ON DELETE CASCADE,
+    appointment_date DATE,
+    appointment_time TIME,
+    reason TEXT,
+    status VARCHAR(20) DEFAULT 'Scheduled'
+  );
+`);
 
     await pool.query(`
       CREATE TABLE staff_schedule (
@@ -425,6 +425,34 @@ async function initDB() {
       ($1, 'Friday', '11pm-7am')
   `, [lilygohStaffId]);
     }
+
+
+    // Insert demo appointments
+    const aliceId = await pool.query("SELECT patient_id FROM patient WHERE name = 'Alice Tan'");
+    const benjaminId = await pool.query("SELECT patient_id FROM patient WHERE name = 'Benjamin Ng'");
+    const claraId = await pool.query("SELECT patient_id FROM patient WHERE name = 'Clara Chua'");
+    const danielId = await pool.query("SELECT patient_id FROM patient WHERE name = 'Daniel Lim'");
+    const evaId = await pool.query("SELECT patient_id FROM patient WHERE name = 'Eva Wong'");
+
+    const amandaId = await pool.query("SELECT staff_id FROM staff WHERE email = 'amandatan@hospital.com'");
+
+    const alvinId = await pool.query("SELECT staff_id FROM staff WHERE email = 'alvingoh@hospital.com'");
+
+    await pool.query(`
+  INSERT INTO appointment (patient_id, staff_id, appointment_date, appointment_time, reason, status)
+  VALUES
+    ($1, $2, '2025-06-14', '09:00', 'Routine check-up', 'Scheduled'),
+    ($3, $4, '2025-06-14', '10:30', 'Follow-up consultation', 'Scheduled'),
+    ($5, $6, '2025-06-15', '11:00', 'Allergy symptoms', 'Scheduled'),
+    ($7, $8, '2025-06-13', '13:00', 'Blood test result discussion', 'Cancelled'),
+    ($9, $10, '2025-06-12', '15:30', 'Back pain treatment', 'Completed')
+`, [
+      aliceId.rows[0].patient_id, amandaId.rows[0].staff_id,
+      benjaminId.rows[0].patient_id, eugeneId.rows[0].staff_id,
+      claraId.rows[0].patient_id, amandaId.rows[0].staff_id,
+      danielId.rows[0].patient_id, alvinId.rows[0].staff_id,
+      evaId.rows[0].patient_id, eugeneId.rows[0].staff_id
+    ]);
 
 
     console.log('✅ Database initialized successfully');

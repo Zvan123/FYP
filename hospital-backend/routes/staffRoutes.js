@@ -1,6 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
+const dayjs = require('dayjs');
+
+router.get('/available-doctors', async (req, res) => {
+    const { date, time } = req.query;
+
+    try {
+        const weekday = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+        const appointmentHour = parseInt(time.split(':')[0], 10);
+
+        const result = await pool.query(`
+            SELECT s.staff_id, s.name
+            FROM staff s
+            JOIN role r ON s.role_id = r.role_id
+            JOIN staff_schedule ss ON s.staff_id = ss.staff_id
+            WHERE r.name = 'Doctor'
+              AND ss.day = $1
+              AND (
+                ($2::int BETWEEN 7 AND 15 AND ss.time_slot = '7am-4pm') OR
+                ($2::int BETWEEN 16 AND 22 AND ss.time_slot = '4pm-11pm') OR
+                (($2::int >= 23 OR $2::int < 7) AND ss.time_slot = '11pm-7am')
+              )
+        `, [weekday, appointmentHour]);
+
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error fetching available doctors:', err);
+        res.status(500).json({ error: 'Failed to fetch available doctors' });
+    }
+});
 
 // GET all staff with optional filters
 router.get('/', async (req, res) => {
@@ -141,6 +170,5 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 
 module.exports = router;

@@ -1,148 +1,211 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 
 const AddAppointment = () => {
     const [patients, setPatients] = useState([]);
-    const [staff, setStaff] = useState([]);
+    const [doctors, setDoctors] = useState([]);
+    const [selectedDate, setSelectedDate] = useState('');
+    const [selectedTime, setSelectedTime] = useState('');
     const [formData, setFormData] = useState({
         patient_id: '',
-        staff_id: '',
+        doctor_id: '',
         appointment_date: '',
         appointment_time: '',
-        status: 'Scheduled',
+        reason: '',
     });
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPatients = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/patients');
-                if (Array.isArray(res.data)) setPatients(res.data);
-                else console.error('Expected array but got:', res.data);
+                const res = await axios.get('/api/patients');
+                setPatients(res.data);
             } catch (err) {
                 console.error('Error fetching patients:', err);
             }
         };
-
-        const fetchStaff = async () => {
-            try {
-                const res = await axios.get('http://localhost:5000/api/staff?role=Doctor&shift=Day');
-                setStaff(res.data);
-            } catch (err) {
-                console.error('Error fetching staff:', err);
-            }
-        };
-
         fetchPatients();
-        fetchStaff();
     }, []);
 
+    useEffect(() => {
+        const fetchDoctors = async () => {
+            if (!selectedDate || !selectedTime) return;
+
+            try {
+                const res = await axios.get('/api/staff/available-doctors', {
+                    params: {
+                        date: selectedDate,
+                        time: selectedTime,
+                    },
+                });
+                setDoctors(res.data);
+            } catch (err) {
+                console.error('Error fetching available doctors:', err);
+            }
+        };
+        fetchDoctors();
+    }, [selectedDate, selectedTime]);
+
     const generateTimeSlots = () => {
-        const start = 8;
-        const end = 18;
-        const slots = [];
-        for (let h = start; h < end; h++) {
-            slots.push(`${h.toString().padStart(2, '0')}:00`);
-            slots.push(`${h.toString().padStart(2, '0')}:30`);
+        const start = 8 * 60; // 8am
+        const end = 18 * 60; // 6pm
+        const intervals = [];
+
+        for (let mins = start; mins < end; mins += 30) {
+            const hours = String(Math.floor(mins / 60)).padStart(2, '0');
+            const minutes = String(mins % 60).padStart(2, '0');
+            intervals.push(`${hours}:${minutes}`);
         }
-        return slots;
+
+        return intervals;
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleDateChange = (e) => {
+        const selected = e.target.value;
+        setSelectedDate(selected);
+        setFormData({ ...formData, appointment_date: selected });
+    };
+
+    const handleTimeChange = (e) => {
+        const time = e.target.value;
+        setSelectedTime(time);
+        setFormData({ ...formData, appointment_time: time });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const { patient_id, doctor_id, appointment_date, appointment_time, reason } = formData;
+
+        if (!patient_id || !doctor_id || !appointment_date || !appointment_time || !reason) {
+            setError('All fields are required.');
+            return;
+        }
+
         try {
-            await axios.post('http://localhost:5000/api/appointments', formData);
-            alert('Appointment added!');
-            setFormData({
-                patient_id: '',
-                staff_id: '',
-                appointment_date: '',
-                appointment_time: '',
-                status: 'Scheduled',
+            await axios.post('/api/appointments', {
+                patient_id,
+                staff_id: doctor_id,
+                appointment_date,
+                appointment_time,
+                reason
             });
+
+            navigate('/appointments');
         } catch (err) {
-            console.error('Error adding appointment:', err);
+            console.error('Error creating appointment:', err);
+            setError('Failed to create appointment.');
         }
     };
 
-    return (
-        <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl">
-            <h2 className="text-2xl font-bold mb-6 text-blue-700">Add Appointment</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
 
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split('T')[0];
+
+    return (
+        <div className="p-6 max-w-2xl mx-auto">
+            <div className="mb-4">
+                <Link to="/appointments" className="text-blue-600 hover:underline">
+                    ← Back to Appointments
+                </Link>
+            </div>
+            <h1 className="text-2xl font-bold mb-4">Add Appointment</h1>
+
+            {error && <p className="text-red-600 mb-4">{error}</p>}
+
+            <form onSubmit={handleSubmit} className="bg-gray-50 p-6 rounded shadow space-y-4">
                 <div>
-                    <label className="block text-gray-700">Select Patient</label>
+                    <label className="block mb-1 font-medium">Select Patient *</label>
                     <select
                         name="patient_id"
                         value={formData.patient_id}
                         onChange={handleChange}
                         required
-                        className="mt-1 block w-full p-2 border rounded"
+                        className="w-full p-2 border rounded"
                     >
-                        <option value="">-- Choose Patient --</option>
-                        {patients.map(p => (
+                        <option value="">-- Select Patient --</option>
+                        {patients.map((p) => (
                             <option key={p.patient_id} value={p.patient_id}>
-                                {p.full_name}
+                                {p.name} ({p.patient_id})
                             </option>
                         ))}
                     </select>
                 </div>
 
                 <div>
-                    <label className="block text-gray-700">Select Doctor</label>
-                    <select
-                        name="staff_id"
-                        value={formData.staff_id}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full p-2 border rounded"
-                    >
-                        <option value="">-- Choose Doctor --</option>
-                        {staff.map(s => (
-                            <option key={s.staff_id} value={s.staff_id}>
-                                {s.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div>
-                    <label className="block text-gray-700">Appointment Date</label>
+                    <label className="block mb-1 font-medium">Appointment Date *</label>
                     <input
                         type="date"
                         name="appointment_date"
-                        value={formData.appointment_date}
-                        onChange={handleChange}
+                        value={selectedDate}
+                        onChange={handleDateChange}
+                        className="w-full p-2 border rounded"
                         required
-                        className="mt-1 block w-full p-2 border rounded"
+                        min={minDate}
                     />
                 </div>
 
                 <div>
-                    <label className="block text-gray-700">Time</label>
+                    <label className="block mb-1 font-medium">Appointment Time *</label>
                     <select
                         name="appointment_time"
-                        value={formData.appointment_time}
-                        onChange={handleChange}
+                        value={selectedTime}
+                        onChange={handleTimeChange}
                         required
-                        className="mt-1 block w-full p-2 border rounded"
+                        className="w-full p-2 border rounded"
                     >
                         <option value="">-- Select Time --</option>
-                        {generateTimeSlots().map(time => (
+                        {generateTimeSlots().map((time) => (
                             <option key={time} value={time}>{time}</option>
                         ))}
                     </select>
                 </div>
 
+                <div>
+                    <label className="block mb-1 font-medium">Available Doctors *</label>
+                    <select
+                        name="doctor_id"
+                        value={formData.doctor_id}
+                        onChange={handleChange}
+                        required
+                        className="w-full p-2 border rounded"
+                    >
+                        <option value="">-- Select Doctor --</option>
+                        {doctors.map((d) => (
+                            <option key={d.staff_id} value={d.staff_id}>
+                                {d.name} ({d.staff_id})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div>
+                    <label className="block mb-1 font-medium">Reason *</label>
+                    <textarea
+                        name="reason"
+                        value={formData.reason}
+                        onChange={handleChange}
+                        className="w-full p-2 border rounded"
+                        placeholder="Enter reason for visit"
+                        required
+                    />
+                </div>
+
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                    Add Appointment
+                    Confirm Appointment
                 </button>
             </form>
         </div>

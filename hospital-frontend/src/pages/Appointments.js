@@ -1,68 +1,120 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Appointments = () => {
     const [appointments, setAppointments] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [editMode, setEditMode] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchAppointments = async () => {
-            try {
-                const res = await axios.get('http://localhost:5000/api/appointments');
-                if (Array.isArray(res.data)) {
-                    setAppointments(res.data);
-                } else {
-                    console.error('Expected array but got:', res.data);
-                    setAppointments([]);
-                }
-            } catch (error) {
-                console.error('Error fetching appointments:', error.message);
-                setAppointments([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchAppointments();
     }, []);
 
+    const fetchAppointments = async () => {
+        try {
+            const res = await axios.get('/api/appointments');
+            setAppointments(Array.isArray(res.data) ? res.data : []);
+        } catch (error) {
+            console.error('Error fetching appointments:', error.message);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this appointment?')) return;
+        try {
+            await axios.delete(`/api/appointments/${id}`);
+            setAppointments((prev) => prev.filter((appt) => appt.appointment_id !== id));
+        } catch (error) {
+            console.error('Error deleting appointment:', error);
+        }
+    };
+
+    const toggleEditMode = () => {
+        setEditMode((prev) => !prev);
+    };
+
     return (
         <div className="p-6">
-            <h2 className="text-2xl font-semibold mb-4">Appointment List</h2>
-            {loading ? (
-                <p>Loading appointments...</p>
-            ) : appointments.length === 0 ? (
-                <p>No appointments found.</p>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full border-collapse border border-gray-300">
-                        <thead>
-                            <tr className="bg-gray-100">
-                                <th className="border px-4 py-2 text-left">#</th>
-                                <th className="border px-4 py-2 text-left">Patient</th>
-                                <th className="border px-4 py-2 text-left">Doctor</th>
-                                <th className="border px-4 py-2 text-left">Date</th>
-                                <th className="border px-4 py-2 text-left">Time</th>
-                                <th className="border px-4 py-2 text-left">Status</th>
-                                <th className="border px-4 py-2 text-left">Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {appointments.map((appt, index) => (
-                                <tr key={appt.appointment_id} className="hover:bg-gray-50">
-                                    <td className="border px-4 py-2">{index + 1}</td>
-                                    <td className="border px-4 py-2">{appt.patient_name}</td>
-                                    <td className="border px-4 py-2">{appt.staff_name}</td>
-                                    <td className="border px-4 py-2">{appt.appointment_date}</td>
-                                    <td className="border px-4 py-2">{appt.appointment_time.slice(0, 5)}</td>
-                                    <td className="border px-4 py-2">{appt.status}</td>
-                                    <td className="border px-4 py-2">{appt.remarks || '-'}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Appointment Management</h1>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => navigate('/add-appointment')}
+                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    >
+                        Add Appointment
+                    </button>
+                    <button
+                        onClick={toggleEditMode}
+                        className={`px-4 py-2 rounded text-white ${editMode ? 'bg-gray-600' : 'bg-blue-600'} hover:opacity-90`}
+                    >
+                        {editMode ? 'Done Editing' : 'Edit Appointments'}
+                    </button>
                 </div>
-            )}
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border">
+                    <thead>
+                        <tr className="bg-gray-200 text-left">
+                            <th className="px-4 py-2">#</th>
+                            <th className="px-4 py-2">Patient</th>
+                            <th className="px-4 py-2">Doctor</th>
+                            <th className="px-4 py-2">Date</th>
+                            <th className="px-4 py-2">Time</th>
+                            <th className="px-4 py-2">Reason</th>
+                            <th className="px-4 py-2">Status</th>
+                            {editMode && <th className="px-4 py-2">Delete</th>}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {appointments.length > 0 ? (
+                            appointments.map((appt, index) => (
+                                <tr key={appt.appointment_id} className="border-t">
+                                    <td className="px-4 py-2">{index + 1}</td>
+                                    <td className="px-4 py-2">{appt.patient_name}</td>
+                                    <td className="px-4 py-2">{appt.doctor_name}</td>
+                                    <td className="px-4 py-2">
+                                        {new Date(appt.appointment_date).toLocaleDateString('en-CA', {
+                                            timeZone: 'Asia/Singapore'
+                                        })}
+                                    </td>
+                                    <td className="px-4 py-2">{appt.appointment_time?.slice(0, 5)}</td>
+                                    <td className="px-4 py-2">{appt.reason}</td>
+                                    <td className="px-4 py-2">
+                                        <span className={`px-2 py-1 rounded text-sm font-medium ${appt.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                                            appt.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                                                'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                            {appt.status}
+                                        </span>
+                                    </td>
+                                    {editMode && (
+                                        <td className="px-4 py-2">
+                                            <button
+                                                onClick={() => handleDelete(appt.appointment_id)}
+                                                className="text-red-600 hover:underline"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    )}
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td
+                                    className="px-4 py-4 text-center"
+                                    colSpan={editMode ? 7 : 6}
+                                >
+                                    No appointments found.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

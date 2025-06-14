@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -5,14 +6,14 @@ import axios from 'axios';
 const PatientDetails = () => {
     const { id } = useParams();
     const [patient, setPatient] = useState(null);
-    const [treatments, setTreatments] = useState([]);
+    const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchPatient = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/patients/${id}`);
+                const response = await axios.get(`/api/patients/${id}`);
                 setPatient(response.data);
             } catch (err) {
                 console.error('Error fetching patient details:', err);
@@ -20,52 +21,72 @@ const PatientDetails = () => {
             }
         };
 
-        const fetchTreatments = async () => {
+        const fetchAppointments = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/patient_treatments/${id}`);
-                setTreatments(response.data);
+                const response = await axios.get(`/api/appointments?patient_id=${id}`);
+                setAppointments(response.data);
             } catch (err) {
-                console.error('Error fetching patient treatments:', err);
+                console.error('Error fetching appointments:', err);
             }
         };
 
-        Promise.all([fetchPatient(), fetchTreatments()]).finally(() => setLoading(false));
+        Promise.all([fetchPatient(), fetchAppointments()]).finally(() => setLoading(false));
     }, [id]);
 
     if (loading) return <div className="p-4">Loading...</div>;
     if (error) return <div className="p-4 text-red-500">{error}</div>;
 
     return (
-        <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl">
-            <h2 className="text-2xl font-bold mb-6 text-blue-700">Patient Details</h2>
-            <div className="space-y-4">
-                <div><strong className="text-gray-600">Full Name:</strong> {patient.name}</div>
-                <div><strong className="text-gray-600">Gender:</strong> {patient.gender}</div>
-                <div><strong className="text-gray-600">Date of Birth:</strong> {patient.date_of_birth ? new Date(patient.date_of_birth).toLocaleDateString() : '-'}</div>
-                <div><strong className="text-gray-600">Phone:</strong> {patient.phone}</div>
-                <div><strong className="text-gray-600">Blood Type:</strong> {patient.blood_type}</div>
-                <div><strong className="text-gray-600">Address:</strong> {patient.address}</div>
-                <div><strong className="text-gray-600">Medical History:</strong> {patient.medical_history || 'None'}</div>
+        <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-xl">
+            <div className="mb-6">
+                <Link to="/patients" className="text-blue-600 hover:underline">
+                    ← Back to Patients
+                </Link>
             </div>
 
-            <div className="mt-8">
-                <h3 className="text-xl font-semibold mb-3 text-blue-600">Treatment History</h3>
-                {treatments.length > 0 ? (
-                    <ul className="list-disc list-inside space-y-2">
-                        {treatments.map((t, index) => (
-                            <li key={index}>
-                                <span className="font-medium">{t.name}</span> — {new Date(t.date_given).toLocaleDateString()}
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="text-gray-500">No treatments recorded.</p>
-                )}
+            <h2 className="text-2xl font-bold mb-4">Patient Details</h2>
+
+            <div className="mb-6">
+                <p><strong>Name:</strong> {patient.name}</p>
+                <p><strong>Gender:</strong> {patient.gender}</p>
+                <p><strong>Date of Birth:</strong> {patient.date_of_birth}</p>
+                <p><strong>Phone:</strong> {patient.phone}</p>
+                <p><strong>Blood Type:</strong> {patient.blood_type}</p>
+                <p><strong>Address:</strong> {patient.address}</p>
+                <p><strong>Medical History:</strong> {patient.medical_history || 'None'}</p>
             </div>
 
-            <div className="mt-6">
-                <Link to="/patients" className="text-blue-500 hover:underline">← Back to Patient List</Link>
-            </div>
+            <h3 className="text-xl font-semibold mb-2">Appointment History</h3>
+            {appointments.length === 0 ? (
+                <p>No appointments found.</p>
+            ) : (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full border border-gray-300">
+                        <thead>
+                            <tr className="bg-gray-100">
+                                <th className="border px-4 py-2 text-left">#</th>
+                                <th className="border px-4 py-2 text-left">Date</th>
+                                <th className="border px-4 py-2 text-left">Time</th>
+                                <th className="border px-4 py-2 text-left">Doctor</th>
+                                <th className="border px-4 py-2 text-left">Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {appointments.map((appt, index) => (
+                                <tr key={appt.appointment_id} className="hover:bg-gray-50">
+                                    <td className="border px-4 py-2">{index + 1}</td>
+                                    <td className="border px-4 py-2">
+                                        {new Date(appt.appointment_date).toISOString().split('T')[0]}
+                                    </td>
+                                    <td className="border px-4 py-2">{appt.appointment_time?.slice(0, 5)}</td>
+                                    <td className="border px-4 py-2">{appt.doctor_name}</td>
+                                    <td className="border px-4 py-2">{appt.reason}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 };

@@ -2,10 +2,20 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db'); // adjust if needed
 
-// GET all staff schedules
+// GET staff on duty with names and roles
 router.get('/', async (req, res) => {
     try {
-        const result = await pool.query('SELECT staff_id, day, time_slot FROM staff_schedule');
+        const result = await pool.query(`
+            SELECT 
+                s.staff_id, 
+                s.name, 
+                r.name AS role, 
+                ss.day, 
+                ss.time_slot
+            FROM staff_schedule ss
+            JOIN staff s ON ss.staff_id = s.staff_id
+            JOIN role r ON s.role_id = r.role_id
+        `);
         res.json(result.rows);
     } catch (err) {
         console.error('Error fetching staff schedules:', err);

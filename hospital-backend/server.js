@@ -21,7 +21,7 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/treatments', treatmentRoutes);
 app.use('/api/patient_treatments', patientTreatmentRoutes);
-app.use('/api/staff-schedules', staffScheduleRoutes);
+app.use('/api/staff-schedule', staffScheduleRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

@@ -14,7 +14,7 @@ const StaffSchedule = () => {
             try {
                 const [staffRes, scheduleRes] = await Promise.all([
                     axios.get('/api/staff'),
-                    axios.get('/api/staff-schedules')
+                    axios.get('/api/staff-schedule')
                 ]);
 
                 setStaffList(staffRes.data);
