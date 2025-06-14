@@ -41,6 +41,17 @@ const Patients = () => {
         )
         : [];
 
+    const calculateAge = (date_of_birth) => {
+        const birthDate = new Date(date_of_birth);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-4">
@@ -79,7 +90,7 @@ const Patients = () => {
                             <th className="px-4 py-2">#</th>
                             <th className="px-4 py-2">Full Name</th>
                             <th className="px-4 py-2">Gender</th>
-                            <th className="px-4 py-2">Date of Birth</th>
+                            <th className="px-4 py-2">Age</th>
                             <th className="px-4 py-2">Phone</th>
                             <th className="px-4 py-2">Blood Type</th>
                             <th className="px-4 py-2">Action</th>
@@ -94,11 +105,9 @@ const Patients = () => {
                                     <td className="px-4 py-2">{patient.name}</td>
                                     <td className="px-4 py-2">{patient.gender}</td>
                                     <td className="px-4 py-2">
-                                        {patient.dob
-                                            ? new Date(patient.dob).toLocaleDateString()
-                                            : ''}
+                                        {patient.date_of_birth ? calculateAge(patient.date_of_birth) : '-'}
                                     </td>
-                                    <td className="px-4 py-2">{patient.contact}</td>
+                                    <td className="px-4 py-2">{patient.phone}</td>
                                     <td className="px-4 py-2">{patient.blood_type || '-'}</td>
                                     <td className="px-4 py-2">
                                         <NavLink

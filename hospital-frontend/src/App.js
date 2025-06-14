@@ -5,12 +5,12 @@ import Dashboard from './pages/Dashboard';
 import Appointments from './pages/Appointments';
 import AddAppointment from './pages/AddAppointment';
 import Patients from './pages/Patients';
-import DoctorSchedule from './pages/DoctorSchedule';
+import StaffSchedule from './pages/StaffSchedule';
 import AddPatient from './pages/AddPatient';
 import Staff from './pages/Staff';
 import AddStaff from './pages/AddStaff';
 import PatientDetails from './pages/PatientDetails';
-
+import StaffDetails from './pages/StaffDetails';
 
 
 const App = () => {
@@ -22,11 +22,12 @@ const App = () => {
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/add-appointment" element={<AddAppointment />} />
           <Route path="/patients" element={<Patients />} />
-          <Route path="/schedule" element={<DoctorSchedule />} />
+          <Route path="/staff-schedule" element={<StaffSchedule />} />
           <Route path="/add-patient" element={<AddPatient />} />
           <Route path="/staff" element={<Staff />} />
           <Route path="/add-staff" element={<AddStaff />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
+          <Route path="/staff/:id" element={<StaffDetails />} />
         </Route>
       </Routes>
     </Router>

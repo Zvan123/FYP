@@ -48,9 +48,9 @@ router.post('/', async (req, res) => {
 
     try {
         const result = await pool.query(
-            `INSERT INTO patient (name, gender, dob, contact, blood_type, address, medical_history)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING *`,
+            `INSERT INTO patient (name, gender, date_of_birth, phone, blood_type, address, medical_history)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
             [full_name, gender, date_of_birth, phone, blood_type, address, medical_history]
         );
         res.status(201).json(result.rows[0]);

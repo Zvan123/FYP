@@ -41,8 +41,8 @@ const PatientDetails = () => {
             <div className="space-y-4">
                 <div><strong className="text-gray-600">Full Name:</strong> {patient.name}</div>
                 <div><strong className="text-gray-600">Gender:</strong> {patient.gender}</div>
-                <div><strong className="text-gray-600">Date of Birth:</strong> {patient.dob ? new Date(patient.dob).toLocaleDateString() : '-'}</div>
-                <div><strong className="text-gray-600">Phone:</strong> {patient.contact}</div>
+                <div><strong className="text-gray-600">Date of Birth:</strong> {patient.date_of_birth ? new Date(patient.date_of_birth).toLocaleDateString() : '-'}</div>
+                <div><strong className="text-gray-600">Phone:</strong> {patient.phone}</div>
                 <div><strong className="text-gray-600">Blood Type:</strong> {patient.blood_type}</div>
                 <div><strong className="text-gray-600">Address:</strong> {patient.address}</div>
                 <div><strong className="text-gray-600">Medical History:</strong> {patient.medical_history || 'None'}</div>

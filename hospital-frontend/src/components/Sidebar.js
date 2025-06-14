@@ -39,21 +39,12 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/add-staff"
+                    to="/staff-schedule"
                     className={({ isActive }) =>
                         `${linkClass} ${isActive ? activeClass : "text-gray-700"}`
                     }
                 >
-                    Add Staff
-                </NavLink>
-
-                <NavLink
-                    to="/schedule"
-                    className={({ isActive }) =>
-                        `${linkClass} ${isActive ? activeClass : "text-gray-700"}`
-                    }
-                >
-                    Doctor Schedule
+                    Staff Schedule
                 </NavLink>
 
                 <NavLink

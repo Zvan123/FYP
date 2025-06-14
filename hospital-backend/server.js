@@ -9,6 +9,7 @@ const staffRoutes = require('./routes/staffRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const treatmentRoutes = require('./routes/treatmentRoutes');
 const patientTreatmentRoutes = require('./routes/patientTreatmentRoutes');
+const staffScheduleRoutes = require('./routes/staffScheduleRoutes');
 
 // Middleware
 app.use(cors());
@@ -20,6 +21,7 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/treatments', treatmentRoutes);
 app.use('/api/patient_treatments', patientTreatmentRoutes);
+app.use('/api/staff-schedules', staffScheduleRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
