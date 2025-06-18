@@ -24,6 +24,14 @@ Use the following credentials to log in as an admin:
 
 ## ✨ Features
 
+### 🔐 Authentication
+- Firebase authentication (email/password login)
+- Protected routes — only logged-in users can access the dashboard
+
+### 📊 Dashboard Overview
+- Shows staff on duty today
+- Lists today’s scheduled appointments
+
 ### 👨‍⚕️ Staff Management
 - View, add, and delete staff
 - Assign work schedules by weekday
@@ -37,14 +45,6 @@ Use the following credentials to log in as an admin:
 - Book appointments with available doctors (based on weekly schedule)
 - View all upcoming, completed, or cancelled appointments
 - Cancel appointments with status tracking
-
-### 🔐 Authentication
-- Firebase authentication (email/password login)
-- Protected routes — only logged-in users can access the dashboard
-
-### 📊 Dashboard Overview
-- Shows staff on duty today
-- Lists today’s scheduled appointments
 
 ---
 
@@ -67,7 +67,7 @@ Use the following credentials to log in as an admin:
 ```bash
 cd hospital-backend
 npm install
-node initDB.js       # Creates tables and inserts sample data
+node initDB.js       
 node server.js       # Starts Express server on port 5000
 ```
 
@@ -78,30 +78,6 @@ cd hospital-frontend
 npm install
 npm start            # Runs app on http://localhost:3000
 ```
-
-
----
-
-## 📸 Screenshots
-
-- Dashboard showing staff on duty and today’s appointments
-- Patient and staff detail pages
-- Appointment booking with time restrictions
-- Sidebar navigation with active state highlighting
-
----
-
-## 🧑‍🎓 Author
-
-This project was built by Zvan Guan as a Final Year Project (FYP).  
-All source code is self-developed and submitted as part of academic work.
-
----
-
-## ✅ Status
-
-✅ All core features completed  
-🚧 Optional features like treatment history or search/filter may be extended post-submission.
 
 ---
 

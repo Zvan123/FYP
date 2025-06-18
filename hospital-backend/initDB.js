@@ -441,8 +441,8 @@ async function initDB() {
     await pool.query(`
   INSERT INTO appointment (patient_id, staff_id, appointment_date, appointment_time, reason, status)
   VALUES
-    ($1, $2, '2025-06-14', '09:00', 'Routine check-up', 'Scheduled'),
-    ($3, $4, '2025-06-14', '10:30', 'Follow-up consultation', 'Scheduled'),
+    ($1, $2, '2025-06-18', '09:00', 'Routine check-up', 'Scheduled'),
+    ($3, $4, '2025-06-18', '10:30', 'Follow-up consultation', 'Scheduled'),
     ($5, $6, '2025-06-15', '11:00', 'Allergy symptoms', 'Scheduled'),
     ($7, $8, '2025-06-13', '13:00', 'Blood test result discussion', 'Cancelled'),
     ($9, $10, '2025-06-12', '15:30', 'Back pain treatment', 'Completed')
