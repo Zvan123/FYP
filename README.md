@@ -4,6 +4,15 @@ A full-stack hospital administration web application built as a Final Year Proje
 
 ---
 
+## 🧰 2. Prerequisites (Terminal section) 
+"To run the system locally, you’ll need to install the following tools on your machine:
+- Node.js – For running the backend server
+- PostgreSQL – As the main database
+- Firebase project – For authentication
+- npm or yarn – To manage dependencies for the frontend and backend"
+
+---
+
 ## 🏗️ Project Structure
 
 ```
