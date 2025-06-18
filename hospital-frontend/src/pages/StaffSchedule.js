@@ -59,7 +59,7 @@ const StaffSchedule = () => {
                 updates.push({ staff_id: staffId, day, time_slot: timeSlot });
             });
 
-            await axios.put('/api/staff-schedules', { updates });
+            await axios.put('/api/staff-schedule', { updates });
             alert('Schedule updated successfully!');
             setEditing(false);
         } catch (err) {
